@@ -20,6 +20,7 @@ You will need google customized search api key and your google cx.
 You will also need an openai api.key
 llmsearch currently uses gpt-3.5-turbo internally, so its reasonably cheap for personal use, usually a few tents of a cent per top-level query.
 I expect to release an update shortly that will enable use of Vicuna, maybe 7B 4bit if possible.
+Screen shot of chatGPT session with plugin installed:
 
 ![plugin](https://user-images.githubusercontent.com/2271133/232800682-9864cea3-7cea-4e4c-927f-fa2f715e270a.jpg)
 
@@ -29,10 +30,10 @@ I am a 'quick sketch' research programmer. Careful methodical programmers will p
 Having said that, I use this code base every day, all day long, as a chatGPT plugin. Pretty much the only failures I have seen are when the interall api calls to gpt-3.5-turbo timeout. There is quite a bit of recovery code around those, they are rare except when openai is swamped.
 
 INSTALLATION:
-clone the repository
-pip3 install -r requirements.txt
-add your openai.api_key either as an evironment var or directly in utilityV2.py
-add your google credentials either as environment vars or directly in google_search_concurrent.py
+1. clone the repository
+2. pip3 install -r requirements.txt
+3. add your openai.api_key either as an evironment var or directly in utilityV2.py
+4. add your google credentials either as environment vars or directly in google_search_concurrent.py
 
 to test, try:
 python3 search_service.py
@@ -40,6 +41,14 @@ python3 search_service.py
 you should see:
 
 Yes?
+
+To run as a gptPlugin (assuming you are a plugin developer) run:
+python3 main.py
+
+Note that you will need to edit openapi.yaml and .well-known/ai-plugin.json, as well as setting the corresponding site info in main.py
+
+This actually starts up a pretty std web server you can actually even call from your browser. lookup openapi.yaml for more on configuration options, I just copy-pasted.
+
 
 
 
