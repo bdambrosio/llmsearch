@@ -1,4 +1,4 @@
-{
+{ 
     "schema_version": "v1",
     "name_for_human": "Search Plugin (no auth)",
     "name_for_model": "search",
