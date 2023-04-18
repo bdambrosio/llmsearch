@@ -49,29 +49,16 @@ Note that you will need to edit openapi.yaml and .well-known/ai-plugin.json, as 
 
 This actually starts up a pretty std web server you can actually even call from your browser. lookup openapi.yaml for more on configuration options, I just copy-pasted.
 
-
-
-
-Enter 'Weather for Berkeley, Ca?' (without the quotes), press return. You should then see a bunch of logging, followed by
-Final response:
-
-####################################################################
-Source: wunderground.com
-....
-
-
-Note you may see other sites, depending on google and on site response time.
-
 That should do it.
 
 
-Site curation and prioritization
-the file contains a json formatted list of sites (next to last portion of domain name, usually).
-At the moment there is no api to manage this list, but you can manually edit it.
-a '1' means a site is whitelisted. a '0' means a site is blacklisted, and any urls for that site returned by google will be ignored.
-a site not listed in sites.json is considered 'Third Party' (a chatGPT recommended term, not mine).
-All whitelist site urls will be launched before any Third Party site urls.
-url launch order is futher prioritized by 'site_state.json', a record of the average post-filtering bytes per second the site has delivered in previous queries.
+<B>Site curation and prioritization</B>
+1. the file contains a json formatted list of sites (next to last portion of domain name, usually).
+2. At the moment there is no api to manage this list, but you can manually edit it.
+       * a '1' means a site is whitelisted. a '0' means a site is blacklisted, and any urls for that site returned by google will be ignored.
+       * a site not listed in sites.json is considered 'Third Party' (a chatGPT recommended term, not mine).
+3. All whitelist site urls will be launched before any Third Party site urls.
+4. url launch order is futher prioritized by 'site_state.json', a record of the average post-filtering bytes per second the site has delivered in previous queries.
 
 In deciding what to whitelist or blacklist, you might want to review the site_stats.
 An easy way to do this is to run python3 show_site_stats.py
