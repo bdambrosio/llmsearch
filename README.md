@@ -21,6 +21,8 @@ You will also need an openai api.key
 llmsearch currently uses gpt-3.5-turbo internally, so its reasonably cheap for personal use, usually a few tents of a cent per top-level query.
 I expect to release an update shortly that will enable use of Vicuna, maybe 7B 4bit if possible.
 
+![plugin](https://user-images.githubusercontent.com/2271133/232800682-9864cea3-7cea-4e4c-927f-fa2f715e270a.jpg)
+
 NOTES:
 I am a 'quick sketch' research programmer. Careful methodical programmers will probably be horrified with the code in this repository.
 *** If you are one such and have suggestions/edits, I'd love your contributions! ***
