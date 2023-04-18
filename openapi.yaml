@@ -1,0 +1,37 @@
+openapi: 3.0.1
+info:
+  title: Search Plugin
+  description: A plugin that searches for information needed to respond to the user, phrased as {query}.
+  version: 'v1'
+servers:
+  - url: http://localhost:5003
+paths:
+  /search/{query}:
+    get:
+      operationId: search
+      summary: Search for information that will aid in determining a response to the user.
+      parameters:
+      - in: path
+        name: query
+        schema:
+            type: string
+        required: true
+        description: phrase describing the information needed.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getSearchResponse'
+
+components:
+  schemas:
+    getSearchResponse:
+      type: object
+      properties:
+        response:
+          type: array
+          items:
+            type: json
+          description: list of information found.

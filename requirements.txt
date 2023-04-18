@@ -1,0 +1,7 @@
+requests
+selenium
+wordfreq
+tenacity
+openai
+quart
+quart-cors
