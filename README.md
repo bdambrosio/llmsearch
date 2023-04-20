@@ -20,6 +20,8 @@ You will need google customized search api key and your google cx.
 You will also need an openai api.key
 llmsearch currently uses gpt-3.5-turbo internally, so its reasonably cheap for personal use, usually a few tents of a cent per top-level query.
 I expect to release an update shortly that will enable use of Vicuna, maybe 7B 4bit if possible.
+*** update - this is stacked behind the llm server I'm building, cloud resources are too hard to find and cpu inference is too slow ***
+
 Screen shot of chatGPT session with plugin installed:
 
 ![plugin](https://user-images.githubusercontent.com/2271133/232800682-9864cea3-7cea-4e4c-927f-fa2f715e270a.jpg)
