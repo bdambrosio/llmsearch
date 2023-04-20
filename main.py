@@ -3,13 +3,31 @@ import search_service
 import quart
 import quart_cors
 from quart import request
+import google_search_concurrent as gs
+import requests
 
 app = quart_cors.cors(quart.Quart(__name__), allow_origin="https://chat.openai.com")
 
-@app.get("/search/<string:query>")
-async def get_search(query):
-    search_result = search_service.run_chat(query)
-    print(json.dumps(search_result, indent=2))
+@app.get("/search/quick/<string:query>")
+async def get_quicksearch(query):
+    level='quick'
+    print(f'level: {level}, query: {query}')
+    search_result = search_service.run_chat(query, level)
+    return quart.Response(response=json.dumps({'response':search_result,
+    "credibility_definitions": {
+    "Official Source": "Source is a government agency.",
+    "Whitelisted Source": "Source is approved in your curation list.",
+    "Third-Party Source": "Source does not appear in your curation list and may have varying levels of reliability.",
+    "Blacklisted Source": "Source has been explicitly banned in your curation list."},
+                                               'input': 'Search for RTX 4070Ti reviews.'
+                                               }), status=200)
+
+
+@app.get("/search/full/<string:query>")
+async def get_fullsearch(query):
+    level='moderate'
+    print(f'level: {level}, query: {query}')
+    search_result = search_service.run_chat(query, level)
     return quart.Response(response=json.dumps({'response':search_result,
     "credibility_definitions": {
     "Official Source": "Source is a government agency.",

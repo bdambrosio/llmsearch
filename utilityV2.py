@@ -15,9 +15,9 @@ from tenacity import (
     stop_after_attempt,
     wait_random_exponential,
 )
-
 openai.api_key = os.getenv("OPENAI_API_KEY")
-
+google_key = os.getenv("GOOGLE_KEY")
+google_cx = os.getenv("GOOGLE_CX")
 GOOGLE = 'google'
 USER = 'user'
 ASSISTANT = 'assistant'
@@ -33,6 +33,9 @@ except:
   print('Failed to read sites.')
 
 
+# for experimenting with Vicuna
+
+	
 def display_top(snapshot, key_type='lineno', limit=10):
     snapshot = snapshot.filter_traces((
         tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),

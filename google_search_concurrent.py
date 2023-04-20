@@ -27,16 +27,14 @@ from selenium.webdriver.chrome.options import Options
 import wordfreq as wf
 from unstructured.partition.html import partition_html
 
-google_key = os.getenv("GOOGLE_KEY")
-google_cx = os.getenv("GOOGLE_CX")
 
 today = " as of "+date.today().strftime("%b-%d-%Y")+'\n\n'
 
 suffix = "\nA: "
 client = '\nQ: '
-QUICK_SEARCH = 0
-NORMAL_SEARCH = 1
-DEEP_SEARCH = 2
+QUICK_SEARCH = 'quick'
+NORMAL_SEARCH = 'moderate'
+DEEP_SEARCH = 'deep'
 
 system_prime = {"role": "system", "content":"You analyze Text with respect to Query and list any relevant information found, including direct quotes from the text, and detailed samples or examples in the text."}
 priming_1 = {"role": "user", "content":"Query:\n"}
@@ -65,13 +63,13 @@ def process_url(query_phrase, keywords, keyword_weights, url):
         pass
     #print(f"Processed {site}: {len(response)} / {len(result)} {int((time.time()-start_time)*1000)} ms")
     return result, url
-    
+
 def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
     # Create a ThreadPoolExecutor with 5 worker threads
     response = []
     print("entering process urls")
     full_text = ''
-    index=0
+    used_index=0
     urls_used = ['' for i in range(30)]
     tried_index = 0
     urls_tried = ['' for i in range(30)]
@@ -86,10 +84,10 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
             try:
                 while (len(urls) > 0
                        # no sense starting if not much time left
-                       and (search_level==DEEP_SEARCH and len(full_text) < 1800 and len(in_process) < 9 and time.time() - start_time < 14)
-                       or (search_level==NORMAL_SEARCH and len(full_text) < 1200 and len(in_process) < 8 and time.time()-start_time < 11)
-                       or (search_level==QUICK_SEARCH  and len(full_text) < 800 and len(in_process) < 7 and time.time()-start_time < 8)
-                       ):
+                       and ((search_level==DEEP_SEARCH and len(full_text) < 1800 and len(in_process) < 9 and time.time() - start_time < 14)
+                            or (search_level==NORMAL_SEARCH and len(full_text) < 1600 and len(in_process) < 8 and time.time()-start_time < 14)
+                            or (search_level==QUICK_SEARCH  and len(full_text) < 800 and len(in_process) < 7 and time.time()-start_time < 8)
+                       )):
                     recommendation = site_stats.get_next(urls, sample_unknown=off_whitelist)
                     if recommendation is None or len(recommendation) == 0:
                         off_whitelist = True
@@ -111,8 +109,8 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
                         processed.append(future)
                         in_process.remove(future)
                         if len(result) > 0:
-                            urls_used[index] = url
-                            index += 1
+                            urls_used[used_index] = url
+                            used_index += 1
                             result = result.replace('. .', '.')
                             print(f'adding {len(result)} chars from {ut.extract_site(url)} to {len(response)} prior responses')
                             site = ut.extract_site(url)
@@ -130,13 +128,15 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
 
                 # openai seems to timeout a plugin  at about 30 secs, and there is pbly 3-4 sec overhead
                 if ((len(urls) == 0 and len(in_process) == 0)
-                    or (search_level==DEEP_SEARCH and (len(full_text) > 1800) or time.time() - start_time > 24)
-                    or (search_level==NORMAL_SEARCH and (len(full_text) > 1200) or time.time()-start_time > 20)
-                    or (search_level==QUICK_SEARCH  and (len(full_text) > 800) or time.time()-start_time > 18)
+                    or (search_level==DEEP_SEARCH and (len(full_text) > 1800) or time.time() - start_time > 22)
+                    or (search_level==NORMAL_SEARCH and
+                        (len(full_text) > 1600) or( used_index > 6 and time.time()-start_time > 18))
+                    or (search_level==QUICK_SEARCH  and
+                        (len(full_text) > 800) or (used_index > 3 and time.time()-start_time > 12))
                     ):
                     executor.shutdown(wait=False)
                     print(f"\n***exiting process urls {len(response)} ***\n")
-                    return response, index, urls_used, tried_index, urls_tried
+                    return response, used_index, urls_used, tried_index, urls_tried
                 time.sleep(.5)
             except:
                 traceback.print_exc()
@@ -182,8 +182,8 @@ def search(query_phrase):
     google_query=query_phrase.replace(' ','%20')
     try:
         start_wall_time = time.time()
-        response = requests.get("https://www.googleapis.com/customsearch/v1?key="+google_key+'&cx='+google_cx+'&num=10'+sort+'&q='+google_query)
-        #print(response)
+        url="https://www.googleapis.com/customsearch/v1?key="+ut.google_key+'&cx='+ut.google_cx+'&num=10'+sort+'&q='+google_query
+        response = requests.get(url)
         response_json = json.loads(response.text)
         print(f'***** keyword extract {int((time.time()-start_wall_time)*10)/10} sec')
     except:
@@ -227,6 +227,7 @@ def log_url_process(site, reason, raw_text, extract_text, gpt_text):
 """
 
 def response_text_extract(query_phrase, keywords, keyword_weights, url, response, get_time):
+    global urls_used, urls_tried
     curr=time.time()
     text = ''
     extract_text = ''

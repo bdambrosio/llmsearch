@@ -107,7 +107,7 @@ def illustrate(text):
       webbrowser.get('google-chrome').open_new_tab(response["data"][0]["url"])
 
 
-def run_chat(query_string, result_as_json=False):
+def run_chat(query_string, search_level=gs.QUICK_SEARCH):
   global urls_all, urls_used, urls_tried, url_text, full_text, full_prompt, google_text, chat_interaction
   global prequery, previous_query, previous_response, chat_history, query_phrase, keywords, intent, topic_name, usermodel
   global new_sites, memory, deepMemory, gpt_message, gpt_response_text, gpt_main_query_message

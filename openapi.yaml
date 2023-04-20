@@ -6,10 +6,29 @@ info:
 servers:
   - url: http://localhost:5003
 paths:
-  /search/{query}:
+  /search/quick/{query}:
     get:
-      operationId: search
-      summary: Search for information that will aid in determining a response to the user.
+      operationId: quicksearch
+      summary: a search optimized for speed of response with a moderate number results.
+      parameters:
+      - in: path
+        name: query
+        schema:
+            type: string
+        required: true
+        description: phrase describing the information needed.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getSearchResponse'
+
+  /search/full/{query}:
+    get:
+      operationId: fullsearch
+      summary: a search optimized for maximum number of results while trying to stay within chatgpt timing. this entrypoint may timeout, and may offer quicker or more complete response if a search request is repeated
       parameters:
       - in: path
         name: query
