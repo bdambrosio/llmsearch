@@ -226,22 +226,28 @@ def get_search_phrase_and_keywords(query_string, chat_history):
     return query_phrase, keywords
 
 
-def reform(text):
+def reform(elements):
     #reformulates text extracted from a webpage by unstructured.partition_html into larger keyword-rankable chunks
-    candidate_paragraphs = (paragraph.strip() for paragraph in text.split('\n'))
+    # input is a list of text extracted from unstructured.io elements
     paragraphs = []
     paragraph = ''
-    for candidate in candidate_paragraphs:
-        if len(paragraph) > 600:
-            paragraphs.append(paragraph+'\n')
-            paragraph = ''
-        # first see if candidate is big enough to be its own paragraph
-        if len(candidate) >= 600:
-            if len(paragraph) > 0:
-                paragraphs.append(paragraph+'\n')
-                paragraphs.append(candidate+'\n')
-        elif len(candidate) > 3:
-            paragraph += candidate+' '
+    for element in elements:
+      if len(element) < 4: continue
+      if len(element) + len(paragraph) > 128 :
+        # start a new paragraph just for element
+        if len(paragraph) > 0:
+          # close off previous paragraph
+          paragraphs.append(paragraph+'.\n')
+        paragraphs.append(element+'.\n')
+        paragraph=''
+      else:
+        paragraph += element+'. '
+    if len(paragraph) > 0:
+      paragraphs.append(paragraph+'.\n')
+    print(f'\n***** reform elements in {len(elements)}, paragraphs out {len(paragraphs)}')
+    for paragraph in paragraphs:
+      print(len(paragraph), end=',')
+    print('')
     return paragraphs
 
 

@@ -26,7 +26,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import wordfreq as wf
 from unstructured.partition.html import partition_html
-
+import nltk
 
 today = " as of "+date.today().strftime("%b-%d-%Y")+'\n\n'
 
@@ -147,7 +147,12 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
 def extract_subtext(text, query_phrase, keywords, keyword_weights):
     ###  maybe we should score based on paragraphs, not lines?
     # break into lines and remove leading and trailing space on each
+    #print('***** raw text')
+    #print(text)
     sentences = ut.reform(text)
+    #print('***** sentences from reform')
+    #for sentence in sentences:
+    #    print(sentence)
     sentence_weights = {}
     final_text = ''
     for sentence in sentences:
@@ -238,10 +243,17 @@ def response_text_extract(query_phrase, keywords, keyword_weights, url, response
         pass
     else:
         elements = partition_html(text=response)
-        text = '.\n'.join([str(e).strip() for e in elements])
-        extract_text = extract_subtext(text, query_phrase, keywords, keyword_weights)
+        str_elements = []
+        print('\n***** elements')
+        for e in elements:
+            stre = str(e).replace('  ', ' ')
+            print(len(str(stre)), end=', ')
+            str_elements.append(stre)
+        print('')
+        #text = '. '.join([str(e).strip() for e in elements])
+        extract_text = extract_subtext(str_elements, query_phrase, keywords, keyword_weights)
         #print('\n************ unstructured **********')
-        #print(f'unstructured found {len(elements)} elements, {sum([len(str(e)) for e in elements])} raw chars, {len(extract_text)} extract')
+        print(f'unstructured found {len(elements)} elements, {sum([len(str(e)) for e in elements])} raw chars, {len(extract_text)} extract')
 
     url_text = text # save for final stats
     #print (f'\n\n{site} url_text {len(text)} extract_text {len(extract_text)}')
@@ -299,7 +311,7 @@ def response_text_extract(query_phrase, keywords, keyword_weights, url, response
         site_stats.update_site_stats(site, 0, get_time, extract_time, openai_time)
         return ''
     else:
-        sentences = response_text.split('.')
+        sentences = nltk.sent_tokenize(response_text)
         response_text = ''
         for sentence in sentences:
             if ('no inform' in sentence.lower() or 'no specific inform' in sentence.lower()
@@ -314,9 +326,9 @@ def response_text_extract(query_phrase, keywords, keyword_weights, url, response
         print("{} {}/{}/{}/{}".format(site, len(response), len(url_text),len(extract_text),len(response_text)))
         #print('************')
         #print(extract_text)
-        #print('************ site response ***********')
-        #print(response_text)
-        #print('************')
+        print('************ site response ***********')
+        print(response_text)
+        print('************')
         return response_text+'\n'
     site_stats.update_site_stats(site, 0, get_time, extract_time, openai_time)
     log_url_process(site, 'no return', '', '', '')
@@ -366,7 +378,7 @@ def search_google(original_query, search_level, query_phrase, keywords, chat_his
     if 'today' in original_query or 'latest' in original_query:
         original_query = today.strip('\n')+' '+original_query
     extract_query = ''
-    original_phrase_urls = []
+    orig_phrase_urls = []
     if len(original_query) > 0:
         orig_phrase_urls = search(original_query[:min(len(original_query), 128)])
         extract_query = original_query[:min(len(original_query), 128)]
