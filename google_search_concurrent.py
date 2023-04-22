@@ -244,17 +244,17 @@ def response_text_extract(query_phrase, keywords, keyword_weights, url, response
     else:
         elements = partition_html(text=response)
         str_elements = []
-        print('\n***** elements')
+        #print('\n***** elements')
         for e in elements:
             stre = str(e).replace('  ', ' ')
-            print(len(str(stre)), end=', ')
+            #print(len(str(stre)), end=', ')
             str_elements.append(stre)
-        print('')
+        #print('')
         #text = '. '.join([str(e).strip() for e in elements])
         extract_text = extract_subtext(str_elements, query_phrase, keywords, keyword_weights)
         #print('\n************ unstructured **********')
-        print(f'unstructured found {len(elements)} elements, {sum([len(str(e)) for e in elements])} raw chars, {len(extract_text)} extract')
-
+        print(f'***** unstructured found {len(elements)} elements, {sum([len(str(e)) for e in elements])} raw chars, {len(extract_text)} extract')
+        #print(extract_text)
     url_text = text # save for final stats
     #print (f'\n\n{site} url_text {len(text)} extract_text {len(extract_text)}')
     #print(extract_text)
@@ -362,7 +362,7 @@ def search_google(original_query, search_level, query_phrase, keywords, chat_his
       weight = max(0, int((8-zipf)*3/4))
       if weight > 0:
           keyword_weights[keyword] = weight
-          print(f'keyword {keyword} wf.ziff {zipf} weight {weight}')
+          #print(f'keyword {keyword} wf.ziff {zipf} weight {weight}')
           subwds = keyword.split(' ')
           if len(subwds) > 1:
               for subwd in subwds:
@@ -370,7 +370,7 @@ def search_google(original_query, search_level, query_phrase, keywords, chat_his
                   sub_wgt = max(0, int((8-zipf)*3/8))
                   if sub_wgt > 0:
                       keyword_weights[subwd] = sub_wgt
-                      print(f'keyword {subwd} weight {sub_wgt}')
+                      #print(f'keyword {subwd} weight {sub_wgt}')
 
                   
   try:  # query google for recent info
@@ -404,7 +404,7 @@ def search_google(original_query, search_level, query_phrase, keywords, chat_his
         process_urls(extract_query, keywords, keyword_weights, all_urls, search_level)
     site_stats.ckpt()
     print(f'***** urls_processed {int((time.time()-start_wall_time)*10)/10} sec')
-    print("return from url processsing")
+    #print("return from url processsing")
   except:
       traceback.print_exc()
   return  full_text, all_urls, index, urls_used, tried_index, urls_tried

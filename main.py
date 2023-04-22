@@ -19,8 +19,7 @@ async def get_quicksearch(query):
     "Whitelisted Source": "Source is approved in your curation list.",
     "Third-Party Source": "Source does not appear in your curation list and may have varying levels of reliability.",
     "Blacklisted Source": "Source has been explicitly banned in your curation list."},
-                                               'input': 'Search for RTX 4070Ti reviews.'
-                                               }), status=200)
+                                    }), status=200)
 
 
 @app.get("/search/full/<string:query>")
@@ -34,7 +33,6 @@ async def get_fullsearch(query):
     "Whitelisted Source": "Source is approved in your curation list.",
     "Third-Party Source": "Source does not appear in your curation list and may have varying levels of reliability.",
     "Blacklisted Source": "Source has been explicitly banned in your curation list."},
-                                               'input': 'Search for RTX 4070Ti reviews.'
                                                }), status=200)
 
 @app.get("/logo.png")

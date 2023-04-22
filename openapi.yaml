@@ -23,7 +23,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/getSearchResponse'
+                $ref: '#/components/schemas/SearchResponse'
 
   /search/full/{query}:
     get:
@@ -42,15 +42,34 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/getSearchResponse'
+                $ref: '#/components/schemas/SearchResponse'
 
 components:
   schemas:
-    getSearchResponse:
+    SearchResponse:
       type: object
       properties:
         response:
           type: array
           items:
-            type: json
-          description: list of information found.
+            $ref: "#/components/schemas/SiteResponse"
+          description: list of responses from specific urls visited.
+        credibility_definitions:
+          type: {'credibility':'description'}
+          description: a mapping between '#/components/schemas/SiteResponse credibility values and string definitions for those values.
+    SiteResponse:
+      type: object
+      properties:
+        source:
+          type: string
+          description: the domain name of the page visited, e.g. 'weatherunderground.com'
+        url:
+          type: string
+          description: the full url of the page visited
+        credibility:
+          type: string
+          enum: ['Official Source', 'Whitelisted Source', 'Third-Party Source', 'Blacklisted Source']
+          description: source credibility, as defined in 'credibility_definitions'
+        text:
+          type: string
+          description: the text relevant to the user query that was extracted from this url
