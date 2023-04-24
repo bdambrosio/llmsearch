@@ -10,11 +10,13 @@ import json
 import tracemalloc
 import os
 import linecache
+import nltk
 from tenacity import (
     retry,
     stop_after_attempt,
     wait_random_exponential,
 )
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 google_key = os.getenv("GOOGLE_KEY")
 google_cx = os.getenv("GOOGLE_CX")
@@ -227,27 +229,42 @@ def get_search_phrase_and_keywords(query_string, chat_history):
 
 
 def reform(elements):
-    #reformulates text extracted from a webpage by unstructured.partition_html into larger keyword-rankable chunks
-    # input is a list of text extracted from unstructured.io elements
-    paragraphs = []
-    paragraph = ''
-    for element in elements:
-      if len(element) < 4: continue
-      if len(element) + len(paragraph) > 512 :
-        # start a new paragraph just for element
-        if len(paragraph) > 0:
-          # close off previous paragraph
-          paragraphs.append(paragraph+'.\n')
-        paragraph=element+'.'
+  #reformulates text extracted from a webpage by unstructured.partition_html into larger keyword-rankable chunks
+  texts = [] # a list of text_strings, each of at most *max* chars, separated on '\n' when splitting an element is needed
+  paragraphs = []
+  for element in elements:
+    text = str(element)
+    if len(text) < 4: continue
+    if len(text)< 1000:
+      texts.append(text)
+    else:
+      subtexts = text.split('\n')
+      for subtext in subtexts:
+        if len(subtext) < 1000:
+          texts.append(text)
+        else:
+          texts.extend(nltk.sent_tokenize(subtext))
+      
+  # now reassemble shorter texts into chunks
+  paragraph = ''
+  for text in texts:
+    if len(text) + len(paragraph) > 1000 :
+      # start a new paragraph just for element
+      if len(paragraph) > 0:
+        # close off previous paragraph
+        paragraphs.append(paragraph)
+        paragraph=text
       else:
-        paragraph += element+'. '
-    if len(paragraph) > 0:
-      paragraphs.append(paragraph+'.\n')
-    print(f'\n***** reform elements in {len(elements)}, paragraphs out {len(paragraphs)}')
-    #for paragraph in paragraphs:
-    #  print(len(paragraph), end=',')
-    #print('')
-    return paragraphs
+        paragraph = text
+    else:
+      paragraph += ' '+text
+  if len(paragraph) > 0:
+          paragraphs.append(paragraph+'.\n')
+  print(f'\n***** reform elements in {len(elements)}, paragraphs out {len(paragraphs)}')
+  for paragraph in paragraphs:
+    print(len(paragraph), end=',')
+  print('')
+  return paragraphs
 
 
 def get_actions(text):

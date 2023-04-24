@@ -321,11 +321,11 @@ def response_text_extract(query_phrase, keywords, keyword_weights, url, response
             else:
                 response_text += '\n \u2022 '+sentence+'. '
         site_stats.update_site_stats(site, len(response_text), get_time, extract_time, openai_time)
-        #print('\n',response_text)
+        print('\n',response_text)
         log_url_process(site, 'response', url_text, extract_text, response_text)
         print("{} {}/{}/{}/{}".format(site, len(response), len(url_text),len(extract_text),len(response_text)))
-        #print('************')
-        #print(extract_text)
+        print('************')
+        print(google_tldr)
         print('************ site response ***********')
         print(response_text)
         print('************')

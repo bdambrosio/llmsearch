@@ -8,9 +8,10 @@ import requests
 
 app = quart_cors.cors(quart.Quart(__name__), allow_origin="https://chat.openai.com")
 
-@app.get("/search/quick/<string:query>")
-async def get_quicksearch(query):
+@app.get("/search/quick")
+async def get_quicksearch():
     level='quick'
+    query = request.args.get('query')
     print(f'level: {level}, query: {query}')
     search_result = search_service.run_chat(query, level)
     return quart.Response(response=json.dumps({'response':search_result,
@@ -22,9 +23,10 @@ async def get_quicksearch(query):
                                     }), status=200)
 
 
-@app.get("/search/full/<string:query>")
+@app.get("/search/full")
 async def get_fullsearch(query):
     level='moderate'
+    query = request.args.get('query')
     print(f'level: {level}, query: {query}')
     search_result = search_service.run_chat(query, level)
     return quart.Response(response=json.dumps({'response':search_result,
