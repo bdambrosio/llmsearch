@@ -1,3 +1,6 @@
+<B><Center> O**** NOW HOSTED! ***</Center></B>
+<B><Center> OpenAI plugin developer? llmsearch is now hosted so you can try it out. Send me mail for URL.</Center></B>
+
 A simple web search tool with Pre and Post search filtering.
 Why? LLMs need to be able to access the web efficiently.
 
@@ -17,7 +20,7 @@ Three ways to use this:
 
 You will need google customized search api key and your google cx.
 
-You will also need an openai api.key
+You will also need an openai api.key.
 llmsearch currently uses gpt-3.5-turbo internally, so its reasonably cheap for personal use, usually a few tents of a cent per top-level query.
 I expect to release an update shortly that will enable use of Vicuna, maybe 7B 4bit if possible.
 *** update - this is stacked behind the llm server I'm building, cloud resources are too hard to find and cpu inference is too slow ***
