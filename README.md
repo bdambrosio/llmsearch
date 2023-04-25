@@ -1,4 +1,4 @@
-<B><Center> **** NOW HOSTED! ***</Center></B>  
+<B><p style="text-align: center;"> **** NOW HOSTED! ***<p style="text-align: center;"></B>  
 <B><Center> OpenAI plugin developer? llmsearch is now hosted so you can try it out. Send me mail for URL.</Center></B>  
 
 A simple web search tool with Pre and Post search filtering.
