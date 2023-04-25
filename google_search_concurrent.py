@@ -78,7 +78,7 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
     processed = []
     google_futures = []
     off_whitelist = False
-    with concurrent.futures.ProcessPoolExecutor(max_workers=11) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=11) as executor:
         # initialize scan of google urls
         while True:
             try:
@@ -232,7 +232,6 @@ def log_url_process(site, reason, raw_text, extract_text, gpt_text):
 """
 
 def response_text_extract(query_phrase, keywords, keyword_weights, url, response, get_time):
-    global urls_used, urls_tried
     curr=time.time()
     text = ''
     extract_text = ''

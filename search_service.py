@@ -76,7 +76,6 @@ google_text = ''
 chat_interaction = False
 previous_query = None
 previous_response = None
-chat_history = []
 topic_name = 'general'
 se = ''
 be = ''
@@ -108,10 +107,6 @@ def illustrate(text):
 
 
 def run_chat(query_string, search_level=gs.QUICK_SEARCH):
-  global urls_all, urls_used, urls_tried, url_text, full_text, full_prompt, google_text, chat_interaction
-  global prequery, previous_query, previous_response, chat_history, query_phrase, keywords, intent, topic_name, usermodel
-  global new_sites, memory, deepMemory, gpt_message, gpt_response_text, gpt_main_query_message
-  global be, se, llm_model, llm_models, user_input_history, query_pending
   #tracemalloc.start()
   response_text = ''
   storeInteraction = True
@@ -119,45 +114,8 @@ def run_chat(query_string, search_level=gs.QUICK_SEARCH):
   try:
     start_wall_time = time.time()
     start_process_time = time.process_time()
-    # check for imperatives
-    command_string = query_string[:32].lower()
-    if command_string.startswith('show illus'):
-      if previous_response is not None:
-        illustrate(previous_response)
-      return 'illustration has been displayed on desktop browser'
-    if command_string.startswith("show url"):
-        print("all urls:")
-        for i in range(len(urls_all)):
-            if len(urls_all[i]) > 0:
-                print(urls_all[i])
-        print("\nurls tried:")
-        for i in range(len(urls_tried)):
-            if len(urls_tried[i]) > 0:
-                print(urls_tried[i])
-        print("\nurls used:")
-        for i in range(len(urls_used)):
-            if len(urls_used[i]) > 0:
-                print(urls_used[i])
-        return 'see log'
-        if 'gpt-4' in query_string:
-          llm_model = 'gpt-4'
-          ut.MODEL = 'gpt-4'
-          return 'ok'
-        elif 'gpt-3.5-turbo' in query_string:
-          llm_model = 'gpt-3.5-turbo'
-          ut.MODEL = 'gpt-3.5-turbo'
-          return 'ok'
-        return 'unknown'
-    if command_string.startswith("clear"):
-      chat_history=[]
-      return 'ok'
-
     # search google for relevant urls unless instructed not to do so
     search_google = True
-    #
-    ## all query_string rewrites must be done by now!
-    #
-    print(f'query: {query_string}')
 
     notes_prefix = "\nThe following notes may contain incorrect, inconsistent, or irrelevant information. Prioritize the consistency of the notes with known facts. Ignore irrelevant, inconsistent, or incorrect information in the notes.\n"
 
@@ -170,10 +128,9 @@ def run_chat(query_string, search_level=gs.QUICK_SEARCH):
     prompt_query_suffix = ''
     context_prime = "Context: User is in Berkeley, California. Today's date is "+date.today().strftime("%b-%d-%Y")+'. The current time is '+datetime.now().strftime('%H:%M local time')+'.'
 
-    query_phrase, keywords = ut.get_search_phrase_and_keywords(query_string, chat_history)
+    query_phrase, keywords = ut.get_search_phrase_and_keywords(query_string, [])
     message_prefix = 'Question: '
     prime = information_prime
-    chat_history = [] # don't try to save conversation context, let caller gpt do that
     gpt_temp = 0.0
     cycles = 0
     mt.clear()
@@ -184,10 +141,8 @@ def run_chat(query_string, search_level=gs.QUICK_SEARCH):
     # ok, not a loop, go ahead and ask google
     try:
       print(f'asking google {query_string}; rephrased: {query_phrase}')
-      chat_history.append(turn)
-      mt.add(turn)
       google_text, urls_all, index, urls_used, tried_index, urls_tried = \
-        gs.search_google(query_string, gs.QUICK_SEARCH, query_phrase, keywords, chat_history)
+        gs.search_google(query_string, gs.QUICK_SEARCH, query_phrase, keywords, [])
       #if len(google_text) > 0:
       #  print('***** gpt extract from google summary:', google_text)
     except:
