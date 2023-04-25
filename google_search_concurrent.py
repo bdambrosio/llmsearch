@@ -128,11 +128,11 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
 
                 # openai seems to timeout a plugin  at about 30 secs, and there is pbly 3-4 sec overhead
                 if ((len(urls) == 0 and len(in_process) == 0)
-                    or (search_level==DEEP_SEARCH and (len(full_text) > 1800) or time.time() - start_time > 22)
+                    or (search_level==DEEP_SEARCH and (len(full_text) > 8000) or time.time() - start_time > 22)
                     or (search_level==NORMAL_SEARCH and
-                        (len(full_text) > 1600) or( used_index > 6 and time.time()-start_time > 18))
+                        (len(full_text) > 6000) or( used_index > 6 and time.time()-start_time > 18))
                     or (search_level==QUICK_SEARCH  and
-                        (len(full_text) > 800) or (used_index > 3 and time.time()-start_time > 12))
+                        (len(full_text) > 4000) or (used_index > 3 and time.time()-start_time > 12))
                     ):
                     executor.shutdown(wait=False)
                     print(f"\n***exiting process urls {len(response)} ***\n")
@@ -167,10 +167,10 @@ def extract_subtext(text, query_phrase, keywords, keyword_weights):
     for keyword in keyword_weights.keys():
         max_sentence_weight += keyword_weights[keyword]
     for i in range(max_sentence_weight,0,-1):
-        if len(final_text)>4000:
+        if len(final_text)>12000:
             continue
         for sentence in sentences:
-            if len(final_text)>4000:
+            if len(final_text)>12000:
                 continue
             if sentence_weights[sentence] == i:
                 final_text += sentence
