@@ -1,5 +1,5 @@
-<B><Center> O**** NOW HOSTED! ***</Center></B>
-<B><Center> OpenAI plugin developer? llmsearch is now hosted so you can try it out. Send me mail for URL.</Center></B>
+<B><Center> **** NOW HOSTED! ***</Center></B>  
+<B><Center> OpenAI plugin developer? llmsearch is now hosted so you can try it out. Send me mail for URL.</Center></B>  
 
 A simple web search tool with Pre and Post search filtering.
 Why? LLMs need to be able to access the web efficiently.
