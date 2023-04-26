@@ -43,7 +43,7 @@ priming_2 = {"role": "user", "content":"List relevant information in the provide
 
 
 # Define a function to make a single URL request and process the response
-def process_url(query_phrase, keywords, keyword_weights, url):
+def process_url(query_phrase, keywords, keyword_weights, url, timeout):
     start_time = time.time()
     site = ut.extract_site(url)
     result = ''
@@ -53,11 +53,16 @@ def process_url(query_phrase, keywords, keyword_weights, url):
             options = Options()
             options.page_load_strategy = 'eager'
             options.add_argument("--headless")
-            response = ''
+            result = ''
             with webdriver.Chrome(options=options) as dr:
-                dr.get(url)
-                response = dr.page_source
-                result =  response_text_extract(query_phrase, keywords, keyword_weights, url, response, int(time.time()-start_time))
+                print(f'*****setting page load timeout {timeout}')
+                dr.set_page_load_timeout(timeout)
+                try:
+                    dr.get(url)
+                    response = dr.page_source
+                    result =  response_text_extract(query_phrase, keywords, keyword_weights, url, response, int(time.time()-start_time))
+                except TimeoutException:
+                    print(f"{site} timeout")
     except Exception:
         traceback.print_exc()
         print(f"{site} err")
@@ -88,15 +93,19 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
                 while (len(urls) > 0
                        # no sense starting if not much time left
                        and ((search_level==DEEP_SEARCH and len(full_text) < 4800 and len(in_process) < 9 and time.time() - start_time < 14)
-                            or (search_level==NORMAL_SEARCH and len(full_text) < 3600 and len(in_process) < 8 and time.time()-start_time < 14)
+                            or (search_level==NORMAL_SEARCH and len(full_text) < 3600 and len(in_process) < 8 and time.time()-start_time < 12)
                             or (search_level==QUICK_SEARCH  and len(full_text) < 2400 and len(in_process) < 6 and time.time()-start_time < 8)
                        )):
                     recommendation = site_stats.get_next(urls, sample_unknown=off_whitelist)
                     if recommendation is None or len(recommendation) == 0:
                         off_whitelist = True
                     else:
+                        # set timeout so we don't wait for a slow site forever
+                        timeout = 12-int(time.time()-start_time)
+                        if search_level==NORMAL_SEARCH:
+                            timeout = timeout+4
                         url = recommendation[1]
-                        future = executor.submit(process_url, query_phrase, keywords, keyword_weights, url)
+                        future = executor.submit(process_url, query_phrase, keywords, keyword_weights, url, timeout)
                         #remaining_time = start_time+18-time.time()
                         #future.exception(remaining_time)
                         google_futures.append(future)
@@ -104,7 +113,7 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
                         urls_tried[tried_index]=url
                         tried_index += 1
                         urls.remove(url)
-                        print(f'queued {ut.extract_site(url)}')
+                        print(f'queued {ut.extract_site(url)}, {timeout}')
                 # Process the responses as they arrive
                 for future in in_process:
                     if future.done():
@@ -268,9 +277,9 @@ def response_text_extract(query_phrase, keywords, keyword_weights, url, response
         {"role":"user","content":"Given:\n"+extract_text+'\n\nQuery:\n'+query_phrase}
     ]
     start_wall_time = time.time()
-    google_tldr = ut.ask_gpt_with_retries(ut.MODEL, gpt_tldr_message, tokens=150, temp=0.3, timeout=5, tries=2)
+    google_tldr = ut.ask_gpt_with_retries(ut.MODEL, gpt_tldr_message, tokens=150, temp=0.3, timeout=5, tries=1)
     openai_time = int((time.time()-start_wall_time)*10)/10
-    print(f'\n***** tldr {int((time.time()-start_wall_time)*10)/10} sec, {query_phrase}')
+    print(f'\n***** tldr {query_phrase}, {openai_time} sec')
     #print(f'***** \n{extract_text}\n***** \n{google_tldr}\n*****\n')
     url_text = url_text.replace('\n','. ')
     response_text = google_tldr.lstrip()
