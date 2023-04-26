@@ -69,6 +69,7 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
     # Create a ThreadPoolExecutor with 5 worker threads
     response = []
     print("entering process urls")
+    start_time = time.time()
     full_text = ''
     used_index=0
     urls_used = ['' for i in range(30)]
@@ -79,6 +80,7 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
     processed = []
     google_futures = []
     off_whitelist = False
+    
     with concurrent.futures.ThreadPoolExecutor(max_workers=11) as executor:
         # initialize scan of google urls
         while True:
@@ -136,13 +138,13 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
                         (len(full_text) > 4000) or (used_index > 3 and time.time()-start_time > 12))
                     ):
                     executor.shutdown(wait=False)
-                    print(f"\n***exiting process urls {len(response)} ***\n")
+                    print(f'n****** exiting process urls early {len(response)} {int(time.time()-start_time)} secs\n')
                     return response, used_index, urls_used, tried_index, urls_tried
                 time.sleep(.5)
             except:
                 traceback.print_exc()
         executor.shutdown(wait=False)
-    print(f"\n***exiting process urls {len(response)} ***\n")
+    print(f"\n*****processed all urls {len(response)}  {int(time.time()-start_time)} secs")
     return response, index, urls_used, tried_index, urls_tried
 
 def extract_subtext(text, query_phrase, keywords, keyword_weights):
@@ -182,9 +184,9 @@ def extract_subtext(text, query_phrase, keywords, keyword_weights):
 
 def search(query_phrase):
     print(f'***** search {query_phrase}')
-    sort = ''
+    sort = '&sort=date-sdate:d:w'
     if 'today' in query_phrase or 'latest' in query_phrase:
-        sort = '&sort=date-sdate:d:w'
+        sort = '&sort=date-sdate:d:s'
     #print(f"search for: {query_phrase}")
     google_query=en.quote(query_phrase)
     response=[]
