@@ -1,5 +1,6 @@
-##llmsearch
+llmsearch
 
+1.0RC 
 A simple web search tool with Pre and Post search filtering.
 Why? LLMs need to be able to access the web efficiently.
 
