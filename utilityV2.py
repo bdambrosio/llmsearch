@@ -218,7 +218,7 @@ def get_search_phrase_and_keywords(query_string, chat_history):
     #for role in gpt_message:
     #    print(role)
     #print()
-    response_text = ask_gpt_with_retries('gpt-3.5-turbo', gpt_message, tokens=150, temp=0, timeout=5, tries=2)
+    response_text = ask_gpt_with_retries('gpt-3.5-turbo', gpt_message, tokens=150, temp=0.3, timeout=5, tries=2)
     #print(response_text)
     query_phrase, remainder = find_query(response_text)
     print ('PHRASE:',query_phrase)
@@ -260,10 +260,10 @@ def reform(elements):
       paragraph += ' '+text
   if len(paragraph) > 0:
           paragraphs.append(paragraph+'.\n')
-  print(f'\n***** reform elements in {len(elements)}, paragraphs out {len(paragraphs)}')
-  for paragraph in paragraphs:
-    print(len(paragraph), end=',')
-  print('')
+  #print(f'\n***** reform elements in {len(elements)}, paragraphs out {len(paragraphs)}')
+  #for paragraph in paragraphs:
+  #  print(len(paragraph), end=',')
+  #print('')
   return paragraphs
 
 

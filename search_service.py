@@ -110,7 +110,6 @@ def run_chat(query_string, search_level=gs.QUICK_SEARCH):
   #tracemalloc.start()
   response_text = ''
   storeInteraction = True
-  print(f'***** query_pending: {query_pending}')
   try:
     start_wall_time = time.time()
     start_process_time = time.process_time()

@@ -11,24 +11,32 @@ app = quart_cors.cors(quart.Quart(__name__), allow_origin="https://chat.openai.c
 @app.get("/search/quick")
 async def get_quicksearch():
     level='quick'
-    query = request.args.get('query')
-    print(f'level: {level}, query: {query}')
-    search_result = search_service.run_chat(query, level)
+    search_result=''
+    try:
+        query = request.args.get('query')
+        print(f'level: {level}, query: {query}')
+        search_result = search_service.run_chat(query, level)
+    except:
+        traceback.print_exc()
     return quart.Response(response=json.dumps({'response':search_result,
-    "credibility_definitions": {
-    "Official Source": "Source is a government agency.",
-    "Whitelisted Source": "Source is approved in your curation list.",
-    "Third-Party Source": "Source does not appear in your curation list and may have varying levels of reliability.",
-    "Blacklisted Source": "Source has been explicitly banned in your curation list."},
-                                    }), status=200)
+                                               "credibility_definitions": {
+                                                   "Official Source": "Source is a government agency.",
+                                                   "Whitelisted Source": "Source is approved in your curation list.",
+                                                   "Third-Party Source": "Source does not appear in your curation list and may have varying levels of reliability.",
+                                                   "Blacklisted Source": "Source has been explicitly banned in your curation list."},
+                                               }), status=200)
 
 
 @app.get("/search/full")
-async def get_fullsearch(query):
+async def get_fullsearch():
     level='moderate'
-    query = request.args.get('query')
-    print(f'level: {level}, query: {query}')
-    search_result = search_service.run_chat(query, level)
+    search_result=''
+    try:
+        query = request.args.get('query')
+        print(f'level: {level}, query: {query}')
+        search_result = search_service.run_chat(query, level)
+    except:
+        traceback.print_exc()
     return quart.Response(response=json.dumps({'response':search_result,
     "credibility_definitions": {
     "Official Source": "Source is a government agency.",
