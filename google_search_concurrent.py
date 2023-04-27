@@ -62,7 +62,7 @@ def process_url(query_phrase, keywords, keyword_weights, url, timeout):
                     response = dr.page_source
                     result =  response_text_extract(query_phrase, keywords, keyword_weights, url, response, int(time.time()-start_time))
                 except TimeoutException:
-                    print(f"{site} timeout")
+                    return '', url
     except Exception:
         traceback.print_exc()
         print(f"{site} err")
@@ -142,7 +142,7 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
                 if ((len(urls) == 0 and len(in_process) == 0)
                     or (search_level==DEEP_SEARCH and (len(full_text) > 8000) or time.time() - start_time > 22)
                     or (search_level==NORMAL_SEARCH and
-                        (len(full_text) > 6000) or( used_index > 6 and time.time()-start_time > 18))
+                        (len(full_text) > 6000) or( used_index > 6 and time.time()-start_time > 20))
                     or (search_level==QUICK_SEARCH  and
                         (len(full_text) > 4000) or (used_index > 3 and time.time()-start_time > 12))
                     ):
