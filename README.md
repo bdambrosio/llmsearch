@@ -1,8 +1,10 @@
 llmsearch
 
-1.0RC 
-A simple web search tool with Pre and Post search filtering.
-Why? LLMs need to be able to access the web efficiently.
+this is Release Candidate for V1.0, seems pretty solid untill if/when issues are posted.  
+
+A simple web search tool / endpoint with Pre and Post search processsing.  
+Why? LLMs need to be able to access the web efficiently.  
+non-LLM chatbots might want text access to a curated set of websites
 
 llmsearch features:
 1. Uses an LLM to rewrite the query for better search results.
@@ -26,7 +28,7 @@ You will also need an openai api.key.
 llmsearch currently uses gpt-3.5-turbo internally, so its reasonably cheap for personal use, usually a few tenths of a cent per top-level query.  
 I expect to release an update shortly that will enable use of Vicuna, maybe 7B 4bit if possible.  
 *** update - this is stacked behind the llm server I'm building, cloud resources are too hard to find and cpu inference is too slow ***  
-*** update2 - even 7B is too slow with a single 3090. Will be moving up to dual 3090, but I doubt that will be fast enough for this use. ***
+*** update2 - even 7B is too slow with a single 3090. Will be moving up to dual 3090, maybe if I lower the number of samples.***
 
 
 Screen shot of chatGPT session with plugin installed:
@@ -54,9 +56,9 @@ Yes?
 To run as a gptPlugin (assuming you are a plugin developer) run:
 python3 main.py
 
-Note that you will need to edit openapi.yaml and .well-known/ai-plugin.json, as well as setting the corresponding site info in main.py
-
-This actually starts up a pretty std web server you can actually even call from your browser. lookup openapi.yaml for more on configuration options, I just copy-pasted.
+Note that you will need to edit openapi.yaml and .well-known/ai-plugin.json, as well as setting the corresponding site info in main.py  
+This actually starts up a pretty std web endpoint you can actually even call from your browser. lookup openapi.yaml for more on configuration options, I just copy-pasted.  
+The endpoint returns json with source, url, response, and credibility keys. 
 
 That should do it.
 
@@ -66,6 +68,8 @@ That should do it.
 2. At the moment there is no api to manage this list, but you can manually edit it. A site not listed in sites.json is considered 'Third Party' (a chatGPT recommended term, not mine).
 3. All whitelist site urls will be launched before any Third-Party site urls.
 4. url launch order is futher prioritized by *site_stats.json*, a record of the average post-filtering bytes per second the site has delivered in previous queries.
+5. comes by default with unlisted sites ok to search.  
+If you want whitelisted only, look in google_search_concurrent.py in the search def for a line like 'if site not in sites or sites[site]==1' and change it to 'if site in sites and sites[site]==1'. I'll add a config file and make that a config option someday...
 
 In deciding what to whitelist or blacklist, you might want to review the site_stats.  
 An easy way to do this is to run *python3 show_site_stats.py*  
