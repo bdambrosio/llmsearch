@@ -14,6 +14,7 @@ import nltk
 from tenacity import (
     retry,
     stop_after_attempt,
+    stop_after_delay,
     wait_random_exponential,
 )
 
@@ -87,7 +88,7 @@ class turn:
     def is_assistant_turn(self):
         return self.source is not None and self.source == ASSISTANT
     
-@retry(wait=wait_random_exponential(min=1, max=8), stop=stop_after_attempt(3))
+@retry(wait=wait_random_exponential(min=1, max=2), stop=(stop_after_delay(15) | stop_after_attempt(2)))
 def chatCompletion_with_backoff(**kwargs):
     return openai.ChatCompletion.create(**kwargs)
 
