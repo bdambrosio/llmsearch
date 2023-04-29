@@ -210,7 +210,7 @@ keyword_prompt = 'Perform two tasks on the following text. First, rewrite the <t
 def get_search_phrase_and_keywords(query_string, chat_history):
     gpt_message = [
         {"role":"user","content":keyword_prompt},
-        {"role":"user","content":"<text>\n"+query_string},
+        {"role":"user","content":"Text\n"+query_string},
         {"role":"assistant", "content":'Phrase:'}
     ]
     response_text=''
