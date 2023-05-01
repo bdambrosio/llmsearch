@@ -11,12 +11,9 @@ import tracemalloc
 import os
 import linecache
 import nltk
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    stop_after_delay,
-    wait_random_exponential,
-)
+#from tenacity import (retry,stop_after_attempt,stop_after_delay, wait_random_exponential)
+from tenacity import *
+import selenium
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 google_key = os.getenv("GOOGLE_KEY")
@@ -88,31 +85,33 @@ class turn:
     def is_assistant_turn(self):
         return self.source is not None and self.source == ASSISTANT
     
-@retry(wait=wait_random_exponential(min=1, max=2), stop=(stop_after_delay(15) | stop_after_attempt(2)))
+#@retry(wait=wait_random_exponential(min=1, max=2), stop=(stop_after_delay(15) | stop_after_attempt(2)))
 def chatCompletion_with_backoff(**kwargs):
     return openai.ChatCompletion.create(**kwargs)
 
-def ask_gpt(model, gpt_message, rsp_tokens, temp):
+def ask_gpt(model, gpt_message, max_tokens, temp, top_p):
     completion = None
     try:
         completion = openai.ChatCompletion.create(
-            model=model, messages=gpt_message, max_tokens=rsp_tokens, temperature=temp, top_p=1)
+            model=model, messages=gpt_message, max_tokens=max_tokens, temperature=temp, top_p=top_p)
     except:
         traceback.print_exc()
     if completion is not None:
         response = completion['choices'][0]['message']['content'].lstrip(' ,:.')
-        #print(response)
+        print(response)
         return response
-    else: return None
+    else:
+      print('no response')
+      return None
 
 def ask_gpt_with_retries(model, gpt_message, tokens, temp, timeout, tries):
-  completion = chatCompletion_with_backoff(model=model, messages=gpt_message,
-                                         max_tokens=tokens, temperature=temp, top_p=1)
-  if completion is not None:
-    response = completion['choices'][0]['message']['content'].lstrip(' ,:.')
-    #print(response)
-    return response
-  else: return None
+  retryer = Retrying(stop=(stop_after_delay(timeout) | stop_after_attempt(2)))
+  r = retryer(ask_gpt, model=model, gpt_message=gpt_message, max_tokens=tokens, temp=temp, top_p=1)
+  #print('***** retryer return')
+  #print(r)
+  #print('***** end retryer return')
+  return r
+  
   
 INFORMATION_QUERY = 'information query'
 INTENTS = []
@@ -219,8 +218,8 @@ def get_search_phrase_and_keywords(query_string, chat_history):
     #for role in gpt_message:
     #    print(role)
     #print()
-    response_text = ask_gpt_with_retries('gpt-3.5-turbo', gpt_message, tokens=150, temp=0.3, timeout=5, tries=2)
-    #print(response_text)
+    response_text = ask_gpt_with_retries('gpt-3.5-turbo', gpt_message, tokens=150, temp=0.3, timeout=6, tries=2)
+    print(response_text)
     query_phrase, remainder = find_query(response_text)
     print ('PHRASE:',query_phrase)
     #print(remainder)
@@ -233,38 +232,40 @@ def reform(elements):
   #reformulates text extracted from a webpage by unstructured.partition_html into larger keyword-rankable chunks
   texts = [] # a list of text_strings, each of at most *max* chars, separated on '\n' when splitting an element is needed
   paragraphs = []
+  total_elem_len = 0
   for element in elements:
     text = str(element)
+    total_elem_len += len(text)
     if len(text) < 4: continue
-    if len(text)< 1000:
+    elif len(text)< 500:
       texts.append(text)
     else:
       subtexts = text.split('\n')
       for subtext in subtexts:
-        if len(subtext) < 1000:
-          texts.append(text)
+        if len(subtext) < 500:
+          texts.append(subtext)
         else:
           texts.extend(nltk.sent_tokenize(subtext))
       
   # now reassemble shorter texts into chunks
   paragraph = ''
+  total_pp_len = 0
   for text in texts:
-    if len(text) + len(paragraph) > 1000 :
-      # start a new paragraph just for element
-      if len(paragraph) > 0:
-        # close off previous paragraph
-        paragraphs.append(paragraph)
-        paragraph=text
-      else:
-        paragraph = text
-    else:
+    if len(text) + len(paragraph) < 500 :
       paragraph += ' '+text
+    else:
+      if len(paragraph) > 0: # start a new paragraph
+        paragraphs.append(paragraph)
+        paragraph=''
+      paragraph += text
   if len(paragraph) > 0:
-          paragraphs.append(paragraph+'.\n')
+    paragraphs.append(paragraph+'.\n')
   #print(f'\n***** reform elements in {len(elements)}, paragraphs out {len(paragraphs)}')
-  #for paragraph in paragraphs:
-  #  print(len(paragraph), end=',')
-  #print('')
+  total_pp_len = 0
+  for paragraph in paragraphs:
+    total_pp_len += len(paragraph)
+  if total_pp_len > 1.2*total_elem_len:
+    print(f'******** reform out > reform in.  out: {total_pp_len}, in: {total_elem_len}')
   return paragraphs
 
 

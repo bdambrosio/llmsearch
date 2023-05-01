@@ -22,6 +22,7 @@ from itertools import zip_longest
 import urllib3
 import warnings
 import copy
+import selenium.common.exceptions
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import wordfreq as wf
@@ -61,7 +62,7 @@ def process_url(query_phrase, keywords, keyword_weights, url, timeout):
                     dr.get(url)
                     response = dr.page_source
                     result =  response_text_extract(query_phrase, keywords, keyword_weights, url, response, int(time.time()-start_time))
-                except TimeoutException:
+                except selenium.common.exceptions.TimeoutException:
                     return '', url
     except Exception:
         traceback.print_exc()
@@ -92,9 +93,9 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
             try:
                 while (len(urls) > 0
                        # no sense starting if not much time left
-                       and ((search_level==DEEP_SEARCH and len(full_text) < 4800 and len(in_process) < 9 and time.time() - start_time < 14)
-                            or (search_level==NORMAL_SEARCH and len(full_text) < 3600 and len(in_process) < 8 and time.time()-start_time < 12)
-                            or (search_level==QUICK_SEARCH  and len(full_text) < 2400 and len(in_process) < 6 and time.time()-start_time < 8)
+                       and ((search_level==DEEP_SEARCH and len(full_text) < 4800 and len(in_process) < 16 and time.time() - start_time < 14)
+                            or (search_level==NORMAL_SEARCH and len(full_text) < 3600 and len(in_process) < 14 and time.time()-start_time < 12)
+                            or (search_level==QUICK_SEARCH  and len(full_text) < 2400 and len(in_process) < 10 and time.time()-start_time < 8)
                        )):
                     recommendation = site_stats.get_next(urls, sample_unknown=off_whitelist)
                     if recommendation is None or len(recommendation) == 0:
@@ -158,9 +159,6 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
 
 def extract_subtext(text, query_phrase, keywords, keyword_weights):
     ###  maybe we should score based on paragraphs, not lines?
-    # break into lines and remove leading and trailing space on each
-    #print('***** raw text')
-    #print(text)
     sentences = ut.reform(text)
     #print('***** sentences from reform')
     #for sentence in sentences:
@@ -178,16 +176,18 @@ def extract_subtext(text, query_phrase, keywords, keyword_weights):
     max_sentence_weight = 0
     for keyword in keyword_weights.keys():
         max_sentence_weight += keyword_weights[keyword]
-    for i in range(max_sentence_weight,0,-1):
-        if len(final_text)>11000:
+    #print(f'******* max sentence weight {max_sentence_weight}')
+    for i in range(max_sentence_weight,1,-1):
+        if len(final_text)>6000 and i < min(max_sentence_weight-2, int(max_sentence_weight/2)): # make sure we don't miss any super-important text
             return final_text
         for sentence in sentences:
-            if len(final_text)+len(sentence)>11001:
+            if len(final_text)+len(sentence)>6001 and i < min(max_sentence_weight-2, int(max_sentence_weight/2)):
                 continue
             if sentence_weights[sentence] == i:
                 final_text += sentence
     #print("relevant text", final_text)
     #print("keyword extract length:",len(final_text)) #, end='.. ')
+
     return final_text
 
 
@@ -277,7 +277,9 @@ def response_text_extract(query_phrase, keywords, keyword_weights, url, response
         {"role":"user","content":"Given:\n"+extract_text+'\n\nQuery:\n'+query_phrase}
     ]
     start_wall_time = time.time()
-    google_tldr = ut.ask_gpt_with_retries(ut.MODEL, gpt_tldr_message, tokens=150, temp=0.3, timeout=5, tries=1)
+    t_out=12-get_time
+    #print(f'****** spawning page get with timeout {t_out}')
+    google_tldr = ut.ask_gpt_with_retries(ut.MODEL, gpt_tldr_message, tokens=300, temp=0.3, timeout=t_out, tries=1)
     openai_time = int((time.time()-start_wall_time)*10)/10
     print(f'\n***** tldr {query_phrase}, {openai_time} sec')
     #print(f'***** \n{extract_text}\n***** \n{google_tldr}\n*****\n')
@@ -368,7 +370,7 @@ def search_google(original_query, search_level, query_phrase, keywords, chat_his
   keyword_weights = {}
   for keyword in keywords:
       zipf = wf.zipf_frequency(keyword, 'en')
-      weight = max(0, int((8-zipf)*3/4))
+      weight = max(0, int((8-zipf)))
       if weight > 0:
           keyword_weights[keyword] = weight
           print(f'keyword {keyword} wf.ziff {zipf} weight {weight}')
@@ -376,7 +378,7 @@ def search_google(original_query, search_level, query_phrase, keywords, chat_his
           if len(subwds) > 1:
               for subwd in subwds:
                   sub_z = wf.zipf_frequency(subwd, 'en')
-                  sub_wgt = max(0, int((8-zipf)*3/8))
+                  sub_wgt = max(0, int((8-zipf)*1/2))
                   if sub_wgt > 0:
                       keyword_weights[subwd] = sub_wgt
                       print(f'keyword {subwd} weight {sub_wgt}')
