@@ -1,6 +1,7 @@
 llmsearch
 
-this is Release Candidate for V1.0, seems pretty solid untill if/when issues are posted.  
+Release 1.0 now here! 
+Release 1.0 is designed as a single-user version of web search for LLMs, with a single global curation file, and no tools for editting it (use your favorite text editor on sites.json)
 
 A simple web search tool / endpoint with Pre and Post search processsing.  
 Why? LLMs need to be able to access the web efficiently.  
