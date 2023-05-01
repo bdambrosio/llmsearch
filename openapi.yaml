@@ -1,10 +1,10 @@
 openapi: 3.0.1
 info:
-  title: Search Plugin
-  description: A plugin that searches for information needed to respond to the user, phrased as {query}.
-  version: 'v1'
+  title: Web Search Plugin
+  description: A plugin that searches the web for information requested
+  version: 'v2'
 servers:
-  - url: http://localhost:5003
+  - url: https://tuuyi.io
 paths:
   /search/quick:
     get:

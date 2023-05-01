@@ -5,3 +5,5 @@ tenacity
 openai
 quart
 quart-cors
+nltk
+hypercorn

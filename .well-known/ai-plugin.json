@@ -1,19 +1,23 @@
 { 
     "schema_version": "v1",
-    "name_for_human": "Search Plugin (no auth)",
-    "name_for_model": "search",
-    "description_for_human": "Plugin for looking up information from a curated list of sources.",
-    "description_for_model": "Plugin for looking up information from a curated list of sources.",
+    "name_for_human": "Web Search Plugin (no auth)",
+    "name_for_model": "llmsearch",
+    "description_for_human": "search a curated list of web sources using gpt internally for page processing.",
+    "description_for_model": "search a curated list of web sources using gpt internally for page processing.",
     "auth": {
-      "type": "none"
+	"type": "service_http",
+	"authorization_type": "bearer",
+	"verification_tokens": {
+	    "openai": "540ad699b84d44ebbc01031f76821797"
+	}
     },
     "api": {
-      "type": "openapi",
-      "url": "http://localhost:5003/openapi.yaml",
-      "is_user_authenticated": false
+	"type": "openapi",
+	"url": "https://tuuyi.io/openapi.yaml",
+	"is_user_authenticated": false
     },
-    "logo_url": "http://localhost:5003/logo.png",
+    "logo_url": "https://tuuyi.io/logo.png",
     "contact_email": "legal@example.com",
-    "legal_info_url": "http://example.com/legal"
-  }
+    "legal_info_url": "https://example.com/legal"
+}
   
