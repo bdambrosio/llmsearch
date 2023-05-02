@@ -43,6 +43,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SearchResponse'
+  /search/Image:
+    get:
+      operationId: imagesearch
+      summary: search for images corresponding to query
+      parameters:
+      - in: query
+        name: query
+        schema:
+            type: string
+        required: true
+        description: phrase describing the image content wanted
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageResponse'
 
 components:
   schemas:
@@ -73,3 +91,10 @@ components:
         text:
           type: string
           description: the text relevant to the user query that was extracted from this url
+   ImageResponse:
+      type: object
+      properties:
+          response:
+            type: array
+            description: a list of urls for images corresponding to the query
+      
