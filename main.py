@@ -1,5 +1,6 @@
 import json
 import search_service
+import image_search
 import quart
 import quart_cors
 from quart import request
@@ -50,6 +51,19 @@ async def get_fullsearch():
     "Whitelisted Source": "Source is approved in your curation list.",
     "Third-Party Source": "Source does not appear in your curation list and may have varying levels of reliability.",
     "Blacklisted Source": "Source has been explicitly banned in your curation list."},
+                                               }), status=200)
+
+@app.get("/search/image")
+async def get_image():
+    level='moderate'
+    search_result=''
+    try:
+        query = request.args.get('query')
+        print(f'level: {level}, query: {query}')
+        search_result = image_search.image_search(query)
+    except:
+        traceback.print_exc()
+    return quart.Response(response=json.dumps({'response':search_result,
                                                }), status=200)
 
 @app.get("/logo.png")
