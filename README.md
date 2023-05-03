@@ -1,5 +1,9 @@
 llmsearch
 
+V1.1 - Now with image search too! just ask chatGPT for an image or picture. Note: default return is 10. If that takes too long to display, just tell gpt how many images you want. e.g.:  
+find 3 images of Stanford University  
+It still actually gets 10 urls, so you can probably just ask it to display 3 more ...
+
 Release 1.0 now here! 
 Release 1.0 is designed as a single-user version of web search for LLMs, with a single global curation file, and no tools for editting it (use your favorite text editor on sites.json)
 
