@@ -6,12 +6,13 @@ import traceback
 import utilityV2 as ut
 
 cx = os.getenv("GOOGLE_IMAGE_CX")
+gkey = os.getenv("GOOGLE_KEY")
 
 def image_search(query):
     urls = []
     try:
         start_wall_time = time.time()
-        url="https://www.googleapis.com/customsearch/v1?key="+ut.google_key+'&source=lnms&searchType=image&cx='+cx+'&q=images+of+Rome'
+        url="https://www.googleapis.com/customsearch/v1?key="+gkey+'&source=lnms&searchType=image&cx='+cx+'&q='+query
         response = requests.get(url)
         response_json = json.loads(response.text)
         #print(f'***** google search {int((time.time()-start_wall_time)*10)/10} sec')

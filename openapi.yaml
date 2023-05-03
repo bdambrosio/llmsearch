@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
   title: Web Search Plugin
-  description: A plugin that searches the web for information requested
-  version: 'v2'
+  description: A plugin that searches the web for information requested. 
+  version: 'v1'
 servers:
   - url: https://tuuyi.io
 paths:
@@ -43,10 +43,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SearchResponse'
-  /search/Image:
+  /search/image:
     get:
       operationId: imagesearch
-      summary: search for images corresponding to query
+      summary: search for image urls (.jpg or .png) corresponding to query
       parameters:
       - in: query
         name: query
@@ -91,10 +91,11 @@ components:
         text:
           type: string
           description: the text relevant to the user query that was extracted from this url
-   ImageResponse:
+    ImageResponse:
       type: object
       properties:
           response:
             type: array
-            description: a list of urls for images corresponding to the query
-      
+            items:
+              type: string
+              description: a url for an image corresponding to the query. the image, with url attached, should be displayed as your response to the user query
