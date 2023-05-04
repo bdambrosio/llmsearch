@@ -178,10 +178,10 @@ def extract_subtext(text, query_phrase, keywords, keyword_weights):
         max_sentence_weight += keyword_weights[keyword]
     #print(f'******* max sentence weight {max_sentence_weight}')
     for i in range(max_sentence_weight,1,-1):
-        if len(final_text)>6000 and i < min(max_sentence_weight-2, int(max_sentence_weight/2)): # make sure we don't miss any super-important text
+        if len(final_text)>6000 and i < max(1, int(max_sentence_weight/4)): # make sure we don't miss any super-important text
             return final_text
         for sentence in sentences:
-            if len(final_text)+len(sentence)>6001 and i < min(max_sentence_weight-2, int(max_sentence_weight/2)):
+            if len(final_text)+len(sentence)>6001 and i < max(1, int(max_sentence_weight/4)):
                 continue
             if sentence_weights[sentence] == i:
                 final_text += sentence
