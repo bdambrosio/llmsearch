@@ -105,11 +105,8 @@ def ask_gpt(model, gpt_message, max_tokens, temp, top_p):
       return None
 
 def ask_gpt_with_retries(model, gpt_message, tokens, temp, timeout, tries):
-  retryer = Retrying(stop=(stop_after_delay(timeout) | stop_after_attempt(2)))
+  retryer = Retrying(stop=(stop_after_delay(timeout) | stop_after_attempt(1)))
   r = retryer(ask_gpt, model=model, gpt_message=gpt_message, max_tokens=tokens, temp=temp, top_p=1)
-  #print('***** retryer return')
-  #print(r)
-  #print('***** end retryer return')
   return r
   
   

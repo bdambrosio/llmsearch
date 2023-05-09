@@ -94,8 +94,8 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
                 while (len(urls) > 0
                        # no sense starting if not much time left
                        and ((search_level==DEEP_SEARCH and len(full_text) < 4800 and len(in_process) < 16 and time.time() - start_time < 14)
-                            or (search_level==NORMAL_SEARCH and len(full_text) < 3600 and len(in_process) < 14 and time.time()-start_time < 12)
-                            or (search_level==QUICK_SEARCH  and len(full_text) < 2400 and len(in_process) < 10 and time.time()-start_time < 8)
+                            or (search_level==NORMAL_SEARCH and len(full_text) < 2400 and len(in_process) < 14 and time.time()-start_time < 12)
+                            or (search_level==QUICK_SEARCH  and len(full_text) < 1600 and len(in_process) < 10 and time.time()-start_time < 8)
                        )):
                     recommendation = site_stats.get_next(urls, sample_unknown=off_whitelist)
                     if recommendation is None or len(recommendation) == 0:
@@ -143,9 +143,9 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
                 if ((len(urls) == 0 and len(in_process) == 0)
                     or (search_level==DEEP_SEARCH and (len(full_text) > 8000) or time.time() - start_time > 22)
                     or (search_level==NORMAL_SEARCH and
-                        (len(full_text) > 6000) or( used_index > 6 and time.time()-start_time > 20))
+                        (len(full_text) > 3600) or time.time()-start_time > 20)
                     or (search_level==QUICK_SEARCH  and
-                        (len(full_text) > 4000) or (used_index > 3 and time.time()-start_time > 12))
+                        (len(full_text) > 1800) or time.time()-start_time > 16)
                     ):
                     executor.shutdown(wait=False)
                     print(f'n****** exiting process urls early {len(response)} {int(time.time()-start_time)} secs\n')
@@ -273,6 +273,7 @@ def response_text_extract(query_phrase, keywords, keyword_weights, url, response
     # now ask openai to extract answer
     response_text = ''
     curr = new_curr
+    extract_text = extract_text[:10000] # make sure we don't run over token limit
     gpt_tldr_message = [
         {"role":"user","content":"Given:\n"+extract_text+'\n\nQuery:\n'+query_phrase}
     ]
@@ -284,6 +285,8 @@ def response_text_extract(query_phrase, keywords, keyword_weights, url, response
     print(f'\n***** tldr {query_phrase}, {openai_time} sec')
     #print(f'***** \n{extract_text}\n***** \n{google_tldr}\n*****\n')
     url_text = url_text.replace('\n','. ')
+    if google_tldr is None:
+        google_tldr = ''
     response_text = google_tldr.lstrip()
     prefix_text = response_text[:min(len(response_text), 96)].lower()
     # openai sometimes returns a special format for 'no imformation'
