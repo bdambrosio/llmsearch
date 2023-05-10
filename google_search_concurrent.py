@@ -93,9 +93,9 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
             try:
                 while (len(urls) > 0
                        # no sense starting if not much time left
-                       and ((search_level==DEEP_SEARCH and len(full_text) < 4800 and len(in_process) < 16 and time.time() - start_time < 14)
-                            or (search_level==NORMAL_SEARCH and len(full_text) < 2400 and len(in_process) < 14 and time.time()-start_time < 12)
-                            or (search_level==QUICK_SEARCH  and len(full_text) < 1600 and len(in_process) < 10 and time.time()-start_time < 8)
+                       and ((search_level==DEEP_SEARCH and len(full_text) < 9600 and len(in_process) < 16 and time.time() - start_time < 14)
+                            or (search_level==NORMAL_SEARCH and len(full_text) < 6400 and len(in_process) < 14 and time.time()-start_time < 12)
+                            or (search_level==QUICK_SEARCH  and len(full_text) < 4800 and len(in_process) < 10 and time.time()-start_time < 8)
                        )):
                     recommendation = site_stats.get_next(urls, sample_unknown=off_whitelist)
                     if recommendation is None or len(recommendation) == 0:
@@ -141,11 +141,11 @@ def process_urls(query_phrase, keywords, keyword_weights, urls, search_level):
 
                 # openai seems to timeout a plugin  at about 30 secs, and there is pbly 3-4 sec overhead
                 if ((len(urls) == 0 and len(in_process) == 0)
-                    or (search_level==DEEP_SEARCH and (len(full_text) > 8000) or time.time() - start_time > 22)
+                    or (search_level==DEEP_SEARCH and (len(full_text) > 9600) or time.time() - start_time > 42)
                     or (search_level==NORMAL_SEARCH and
-                        (len(full_text) > 3600) or time.time()-start_time > 20)
+                        (len(full_text) > 6400) or time.time()-start_time > 32)
                     or (search_level==QUICK_SEARCH  and
-                        (len(full_text) > 1800) or time.time()-start_time > 16)
+                        (len(full_text) > 4800) or time.time()-start_time > 28)
                     ):
                     executor.shutdown(wait=False)
                     print(f'n****** exiting process urls early {len(response)} {int(time.time()-start_time)} secs\n')
