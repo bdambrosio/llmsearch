@@ -23,7 +23,7 @@ llmsearch features:
 Four ways to use this:
 1. as a chatGPT plugin (if you are a plugin developer)
 2. as a network endpoint for your application
-3. as a standalone command line search tool 'python3 search_engine.py'
+3. as a standalone command line search tool 'python3 search_service.py'
 4. directly from within a python application: import search_service, then call search_service.from_gpt(query_string, search_level)
 
 You will need google customized search api key and your google cx.
