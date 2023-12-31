@@ -1,5 +1,11 @@
 llmsearch
 
+Dec 31, 2023
+
+I haven't touched this in a long time, but to my surprise there is still some traffic. If you have an issue or need an upgrade let me know!
+I'm using a slimmed down version in my current project, Owl, which I *may* release someday, if anyone cares enough I have some updates I can backport to this fuller version. 
+
+
 V1.1 - Now with image search too! just ask chatGPT for an image or picture. Note: default return is 10. If that takes too long to display, just tell gpt how many images you want. e.g.:  
 find 3 images of Stanford University  
 It still actually gets 10 urls, so you can probably just ask it to display 3 more ...
